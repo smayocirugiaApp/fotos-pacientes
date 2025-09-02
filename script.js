@@ -1,7 +1,7 @@
-// === NUEVO script.js - SIN OAUTH - FUNCIONA ===
+// === NUEVO script.js - FUNCIONA CON APPS SCRIPT ===
+// Reemplaza TODO el contenido de tu script.js con este
 
-// 🔥 PEGA AQUÍ LA URL QUE TE DIO GOOGLE APPS SCRIPT
-const UPLOAD_URL = 'https://script.google.com/macros/s/AKfycbxrOerQ0ZokJ_pjS6seCpOmCgTuLJtxPOfn61fhZ5FRAqjBSc_Zn7V6opN3GDuZqEg4/exec';
+const UPLOAD_URL = 'https://script.google.com/macros/s/AKfycbxrOerQ0ZokJ_pjS6seCpOmCgTuLJtxPOfn61fhZ5FRAqjBSc_Zn7V6opN3GDuZqEg4/exec'; // ← PEGA TU URL AQUÍ
 
 // Elementos del DOM
 const loginBtn = document.getElementById('loginBtn');
@@ -14,18 +14,16 @@ const uploadBtn = document.getElementById('uploadBtn');
 
 let stream = null;
 let photoDataUrl = null;
-
-// Datos del paciente
 let patientData = {};
 
-// Cuando haces clic en "Iniciar sesión con Google"
+// Al hacer clic en "Iniciar sesión con Google"
 loginBtn.onclick = () => {
   const nombre = document.getElementById('nombre').value.trim();
   const apellido = document.getElementById('apellido').value.trim();
   const dni = document.getElementById('dni').value.trim();
 
   if (!nombre || !apellido || !dni) {
-    alert('Por favor, completa todos los datos del paciente.');
+    alert('Completa todos los datos del paciente.');
     return;
   }
 
@@ -33,7 +31,7 @@ loginBtn.onclick = () => {
   showCamera();
 };
 
-// Mostrar la cámara
+// Mostrar cámara
 function showCamera() {
   loginBtn.style.display = 'none';
   cameraSection.style.display = 'block';
@@ -58,12 +56,12 @@ takePhotoBtn.onclick = () => {
   stream.getTracks().forEach(track => track.stop());
 
   photoDataUrl = canvas.toDataURL('image/jpeg');
-  photoPreview.innerHTML = `<img src="${photoDataUrl}" alt="Foto del paciente" style="max-width: 100%;">`;
+  photoPreview.innerHTML = `<img src="${photoDataUrl}" alt="Foto" style="max-width: 100%; border-radius: 8px;" />`;
   takePhotoBtn.style.display = 'none';
   uploadBtn.style.display = 'block';
 };
 
-// Subir foto al servidor (Google Apps Script)
+// Subir foto a Google Drive
 uploadBtn.onclick = async () => {
   const { nombre, apellido, dni } = patientData;
   const fileName = `DNI_${dni}_${apellido}_${nombre}.jpg`;
@@ -81,21 +79,20 @@ uploadBtn.onclick = async () => {
       }
     });
 
-    const text = await response.text(); // Google Apps Script devuelve texto
-    let result;
-    try {
-      result = JSON.parse(text);
-    } catch (e) {
-      throw new Error('Respuesta no JSON: ' + text);
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`HTTP ${response.status}: ${text}`);
     }
 
+    const result = await response.json();
+
     if (result.status === 'success') {
-      alert(`✅ Foto subida correctamente:\n${fileName}`);
+      alert(`✅ Foto subida:\n${result.file}`);
     } else {
       throw new Error(result.message);
     }
   } catch (error) {
+    console.error('Error en subida:', error);
     alert('❌ Error al subir: ' + error.message);
   }
-
 };
