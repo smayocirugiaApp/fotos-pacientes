@@ -1,33 +1,32 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Foto Paciente</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://apis.google.com/js/api.js"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>Foto del Paciente</h1>
+<input type="file" id="fileInput">
+<button onclick="uploadFile()">Subir</button>
+<div id="result"></div>
 
-    <form id="patientForm">
-      <label>Nombre: <input type="text" id="nombre" required /></label><br />
-      <label>Apellido: <input type="text" id="apellido" required /></label><br />
-      <label>DNI: <input type="text" id="dni" required /></label><br />
-      <button type="button" id="loginBtn">Iniciar sesión con Google</button>
-    </form>
+<script>
+const WEB_APP_URL = "TU_URL_DEL_WEBAPP"; // ⚠️ pon aquí el de Apps Script
 
-    <div id="cameraSection" style="display: none;">
-      <h2>Toma una foto</h2>
-      <video id="video" autoplay></video>
-      <button id="takePhotoBtn">Tomar Foto</button>
-      <canvas id="canvas" style="display: none;"></canvas>
-      <div id="photoPreview"></div>
-      <button id="uploadBtn" style="display: none;">Subir a Google Drive</button>
-    </div>
-  </div>
+async function uploadFile() {
+  const fileInput = document.getElementById("fileInput");
+  if (!fileInput.files.length) return alert("Selecciona un archivo");
 
-  <script src="script.js"></script>
-</body>
-</html>
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+
+  reader.onload = async function(e) {
+    try {
+      const response = await fetch(WEB_APP_URL + "?filename=" + encodeURIComponent(file.name), {
+        method: "POST",
+        body: e.target.result
+      });
+
+      const result = await response.json();
+      document.getElementById("result").innerText = JSON.stringify(result, null, 2);
+
+    } catch (err) {
+      document.getElementById("result").innerText = "❌ Error: " + err;
+    }
+  };
+
+  reader.readAsDataURL(file);
+}
+</script>
