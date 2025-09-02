@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Foto Paciente</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://apis.google.com/js/api.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Foto del Paciente</h1>
+
+    <form id="patientForm">
+      <label>Nombre: <input type="text" id="nombre" required /></label><br />
+      <label>Apellido: <input type="text" id="apellido" required /></label><br />
+      <label>DNI: <input type="text" id="dni" required /></label><br />
+      <button type="button" id="loginBtn">Iniciar sesión con Google</button>
+    </form>
+
+    <div id="cameraSection" style="display: none;">
+      <h2>Toma una foto</h2>
+      <video id="video" autoplay></video>
+      <button id="takePhotoBtn">Tomar Foto</button>
+      <canvas id="canvas" style="display: none;"></canvas>
+      <div id="photoPreview"></div>
+      <button id="uploadBtn" style="display: none;">Subir a Google Drive</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
