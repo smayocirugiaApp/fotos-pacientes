@@ -97,4 +97,5 @@ uploadBtn.onclick = async () => {
   } catch (error) {
     alert('❌ Error al subir: ' + error.message);
   }
+
 };
