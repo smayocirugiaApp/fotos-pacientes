@@ -6,7 +6,7 @@ body {
 }
 
 .container {
-  max-width: 500px;
+  max-width: 600px;
   margin: 0 auto;
   background: white;
   padding: 20px;
@@ -14,15 +14,15 @@ body {
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
-input {
+input, button {
   margin: 5px 0;
   padding: 8px;
   width: 100%;
+  box-sizing: border-box;
 }
 
 button {
-  margin: 10px 0;
-  padding: 10px 15px;
+  margin-top: 10px;
   background: #4285f4;
   color: white;
   border: none;
@@ -40,4 +40,15 @@ video, #photoPreview img {
   margin: 10px 0;
   border: 1px solid #ddd;
   border-radius: 8px;
+}
+
+#photoPreview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+#photoPreview img {
+  width: calc(50% - 10px);
+  object-fit: cover;
 }
