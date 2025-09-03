@@ -1,101 +1,81 @@
-// === NUEVO script.js - FUNCIONA CON APPS SCRIPT ===
-// Reemplaza TODO el contenido de tu script.js con este
+const UPLOAD_URL = "TU_URL_DEL_WEBAPP_AQUI";
 
-const UPLOAD_URL = 'https://script.google.com/macros/s/AKfycbxrOerQ0ZokJ_pjS6seCpOmCgTuLJtxPOfn61fhZ5FRAqjBSc_Zn7V6opN3GDuZqEg4/exec'; // ← PEGA TU URL AQUÍ
+const fileInput = document.getElementById("fileInput");
+const uploadBtn = document.getElementById("uploadBtn");
+const photoPreview = document.getElementById("photoPreview");
+const result = document.getElementById("result");
 
-// Elementos del DOM
-const loginBtn = document.getElementById('loginBtn');
-const cameraSection = document.getElementById('cameraSection');
-const video = document.getElementById('video');
-const takePhotoBtn = document.getElementById('takePhotoBtn');
-const canvas = document.getElementById('canvas');
-const photoPreview = document.getElementById('photoPreview');
-const uploadBtn = document.getElementById('uploadBtn');
-
-let stream = null;
-let photoDataUrl = null;
-let patientData = {};
-
-// Al hacer clic en "Iniciar sesión con Google"
-loginBtn.onclick = () => {
-  const nombre = document.getElementById('nombre').value.trim();
-  const apellido = document.getElementById('apellido').value.trim();
-  const dni = document.getElementById('dni').value.trim();
-
-  if (!nombre || !apellido || !dni) {
-    alert('Completa todos los datos del paciente.');
-    return;
-  }
-
-  patientData = { nombre, apellido, dni };
-  showCamera();
+// Datos del paciente
+let patientData = {
+  nombre: "NombrePaciente",
+  apellido: "ApellidoPaciente",
+  dni: "12345678"
 };
 
-// Mostrar cámara
-function showCamera() {
-  loginBtn.style.display = 'none';
-  cameraSection.style.display = 'block';
+let photos = []; // array para fotos seleccionadas
 
-  navigator.mediaDevices.getUserMedia({ video: true })
-    .then((mediaStream) => {
-      stream = mediaStream;
-      video.srcObject = stream;
-    })
-    .catch(err => {
-      alert('Error al acceder a la cámara: ' + err.message);
+fileInput.addEventListener("change", () => {
+  photoPreview.innerHTML = "";
+  photos = [];
+
+  const files = Array.from(fileInput.files).slice(0, 10); // máximo 10 fotos
+  files.forEach((file, index) => {
+    const img = document.createElement("img");
+    img.src = URL.createObjectURL(file);
+    photoPreview.appendChild(img);
+
+    // Generar nombre único
+    const filename = `DNI_${patientData.dni}_${patientData.apellido}_${patientData.nombre}_${index+1}.jpg`;
+
+    photos.push({
+      file,
+      filename
     });
-}
+  });
 
-// Tomar foto
-takePhotoBtn.onclick = () => {
-  const ctx = canvas.getContext('2d');
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-  stream.getTracks().forEach(track => track.stop());
-
-  photoDataUrl = canvas.toDataURL('image/jpeg');
-  photoPreview.innerHTML = `<img src="${photoDataUrl}" alt="Foto" style="max-width: 100%; border-radius: 8px;" />`;
-  takePhotoBtn.style.display = 'none';
-  uploadBtn.style.display = 'block';
-};
-
-// Subir foto a Google Drive
-uploadBtn.onclick = async () => {
-  const { nombre, apellido, dni } = patientData;
-  const fileName = `DNI_${dni}_${apellido}_${nombre}.jpg`;
-
-  try {
-    const response = await fetch(UPLOAD_URL, {
-      method: 'POST',
-      body: JSON.stringify({
-        image: photoDataUrl,
-        type: 'image/jpeg',
-        filename: fileName
-      }),
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      const text = await response.text();
-      throw new Error(`HTTP ${response.status}: ${text}`);
-    }
-
-    const result = await response.json();
-
-    if (result.status === 'success') {
-      alert(`✅ Foto subida:\n${result.file}`);
-    } else {
-      throw new Error(result.message);
-    }
-  } catch (error) {
-    console.error('Error en subida:', error);
-    alert('❌ Error al subir: ' + error.message);
+  if (fileInput.files.length > 10) {
+    alert("Solo se subirán las primeras 10 fotos.");
   }
-};
+});
+
+uploadBtn.addEventListener("click", async () => {
+  if (!photos.length) return alert("Selecciona al menos una foto");
+
+  result.innerHTML = "";
+  for (let i = 0; i < photos.length; i++) {
+    const { file, filename } = photos[i];
+    const reader = new FileReader();
+
+    await new Promise((resolve) => {
+      reader.onload = async (e) => {
+        try {
+          const response = await fetch(UPLOAD_URL, {
+            method: "POST",
+            body: JSON.stringify({
+              image: e.target.result,
+              type: file.type,
+              filename: filename
+            }),
+            headers: { "Content-Type": "application/json" }
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            result.innerHTML += `✅ ${filename} subida: <a href="${data.file}" target="_blank">Ver archivo</a><br>`;
+          } else {
+            result.innerHTML += `❌ ${filename} error: ${data.error}<br>`;
+          }
+        } catch (err) {
+          result.innerHTML += `❌ ${filename} error: ${err.message}<br>`;
+        } finally {
+          resolve();
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+});
+
 
 
 
