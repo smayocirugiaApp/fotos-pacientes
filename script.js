@@ -1,4 +1,4 @@
-const UPLOAD_URL = "TU_URL_DEL_WEBAPP_AQUI";
+const UPLOAD_URL = "https://script.google.com/macros/s/AKfycbxrOerQ0ZokJ_pjS6seCpOmCgTuLJtxPOfn61fhZ5FRAqjBSc_Zn7V6opN3GDuZqEg4/exec";
 
 const fileInput = document.getElementById("fileInput");
 const uploadBtn = document.getElementById("uploadBtn");
@@ -75,6 +75,7 @@ uploadBtn.addEventListener("click", async () => {
     });
   }
 });
+
 
 
 
