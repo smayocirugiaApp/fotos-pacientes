@@ -1,32 +1,40 @@
-<input type="file" id="fileInput">
-<button onclick="uploadFile()">Subir</button>
-<div id="result"></div>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Subir fotos del paciente</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Subir fotos del paciente</h2>
 
-<script>
-const WEB_APP_URL = "TU_URL_DEL_WEBAPP"; // ⚠️ pon aquí el de Apps Script
+    <label>Nombre:</label>
+    <input type="text" id="nombre" placeholder="Nombre del paciente">
 
-async function uploadFile() {
-  const fileInput = document.getElementById("fileInput");
-  if (!fileInput.files.length) return alert("Selecciona un archivo");
+    <label>Apellido:</label>
+    <input type="text" id="apellido" placeholder="Apellido del paciente">
 
-  const file = fileInput.files[0];
-  const reader = new FileReader();
+    <label>DNI:</label>
+    <input type="text" id="dni" placeholder="DNI del paciente">
 
-  reader.onload = async function(e) {
-    try {
-      const response = await fetch(WEB_APP_URL + "?filename=" + encodeURIComponent(file.name), {
-        method: "POST",
-        body: e.target.result
-      });
+    <hr>
 
-      const result = await response.json();
-      document.getElementById("result").innerText = JSON.stringify(result, null, 2);
+    <button id="startCameraBtn">Iniciar cámara</button>
+    <div id="cameraSection" style="display:none;">
+      <video id="video" autoplay></video>
+      <button id="takePhotoBtn">Tomar foto</button>
+    </div>
 
-    } catch (err) {
-      document.getElementById("result").innerText = "❌ Error: " + err;
-    }
-  };
+    <label>O seleccionar archivos:</label>
+    <input type="file" id="fileInput" accept="image/*" multiple>
 
-  reader.readAsDataURL(file);
-}
-</script>
+    <button id="uploadBtn">Subir todas las fotos</button>
+
+    <div id="photoPreview"></div>
+    <div id="result"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
